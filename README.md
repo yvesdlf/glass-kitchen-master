@@ -1,11 +1,7 @@
 
 # Glass Kitchen
 
-<<<<<<< HEAD
 Glass Kitchen is a modern web application for managing recipes, ingredients, price lists, and food costing. Built with React, Vite, TypeScript, Tailwind CSS, and shadcn-ui, it provides a fast and intuitive interface for culinary professionals and enthusiasts.
-=======
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID Yves de Lafontaine
->>>>>>> be9caca76f8f937bc51c96d83b669012c4ba42ab
 
 ## Project info
 
