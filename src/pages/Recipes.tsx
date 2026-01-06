@@ -104,7 +104,8 @@ export default function Recipes() {
                     <Badge variant="secondary" className="text-xs">
                       {recipe.cuisine}
                     </Badge>
-                    <Badge variant="outline" className="text-xs">
+                    {/* Show course badge, and if course is 'Desserts' or 'Specials', highlight */}
+                    <Badge variant={['Desserts', 'Specials'].includes(recipe.course) ? "default" : "outline"} className="text-xs">
                       {recipe.course}
                     </Badge>
                   </div>
@@ -123,6 +124,14 @@ export default function Recipes() {
                   <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground">
                     <ChefHat className="w-3.5 h-3.5" />
                     <span>{recipe.ingredients.length} ingredients</span>
+                  </div>
+
+                  {/* Allergens - placeholder logic, replace with real allergen data from PriceLists */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {/* Example: show allergens for demo purposes. Replace with real logic to pull allergens for recipe ingredients. */}
+                    {["Milk","Eggs","Fish","Crustacean shellfish","Tree nuts","Peanuts","Wheat","Soybeans","Sesame","Gluten-containing cereals (wheat, barley, rye, oats)","Celery","Lupin","Mollusks","Mustard","Sulfites/sulphur dioxide"].map((allergen, idx) => (
+                      <Badge key={allergen+idx} variant="outline" className="text-xxs" style={{ display: Math.random() > 0.95 ? 'inline-block' : 'none' }}>{allergen}</Badge>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

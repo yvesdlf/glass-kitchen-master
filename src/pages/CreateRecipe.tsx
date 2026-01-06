@@ -70,8 +70,21 @@ export default function CreateRecipe() {
               
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Input id="category" placeholder="e.g., Main Course" />
+                  <Label htmlFor="course">Course</Label>
+                  <select
+                    id="course"
+                    className="w-full border rounded-md px-3 py-2 bg-background text-foreground"
+                  >
+                    <option value="">Select course</option>
+                    <option value="Appetizers">Appetizers</option>
+                    <option value="Salads">Salads</option>
+                    <option value="Raw">Raw</option>
+                    <option value="Mains">Mains</option>
+                    <option value="Sides">Sides</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Desserts">Desserts</option>
+                    <option value="Specials">Specials</option>
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="yield">Yield (servings)</Label>
@@ -128,11 +141,18 @@ export default function CreateRecipe() {
                       />
                     </div>
                     <div className="col-span-4 sm:col-span-2">
-                      <Input 
-                        placeholder="Unit"
+                      <select
                         value={ingredient.unit}
                         onChange={(e) => updateIngredient(ingredient.id, 'unit', e.target.value)}
-                      />
+                        className="w-full border rounded-md px-3 py-2 bg-background text-foreground"
+                      >
+                        <option value="">Unit</option>
+                        <option value="KG">KG</option>
+                        <option value="G">G</option>
+                        <option value="L">L</option>
+                        <option value="ML">ML</option>
+                        <option value="EACH">EACH</option>
+                      </select>
                     </div>
                     <div className="col-span-3 sm:col-span-3">
                       <Input 

@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+
+# Glass Kitchen
+
+<<<<<<< HEAD
+Glass Kitchen is a modern web application for managing recipes, ingredients, price lists, and food costing. Built with React, Vite, TypeScript, Tailwind CSS, and shadcn-ui, it provides a fast and intuitive interface for culinary professionals and enthusiasts.
+=======
+**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID Yves de Lafontaine
+>>>>>>> be9caca76f8f937bc51c96d83b669012c4ba42ab
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID Yves de Lafontaine
 
-## How can I edit this code?
+**Demo/Production URL**: _[Add your deployed URL here, e.g., https://glass-kitchen.example.com]_ 
 
-There are several ways of editing your application.
+**Repository**: https://github.com/yvesdlf/glass-kitchen-master
 
-**Use Lovable**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+To run Glass Kitchen locally:
 
-**Use your preferred IDE**
+1. **Clone the repository:**
+	```sh
+	git clone https://github.com/yvesdlf/glass-kitchen-master.git
+	cd glass-kitchen-master
+	```
+2. **Install dependencies:**
+	```sh
+	npm install
+	# or
+	bun install
+	```
+3. **Start the development server:**
+	```sh
+	npm run dev
+	# or
+	bun run dev
+	```
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Updating the Project
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Make your changes in the `src/` directory (components, pages, data, etc.).
+- Use `npm run dev` to preview changes live.
+- Commit and push your changes to GitHub.
 
-Follow these steps:
+#### Project Structure
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- `src/pages/` — Main application pages (Recipes, Ingredients, Costing, etc.)
+- `src/components/` — Reusable UI components
+- `src/data/` — Static data (e.g., recipes)
+- `src/hooks/` — Custom React hooks
+- `src/lib/` — Utility functions
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Tech Stack
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- [Vite](https://vitejs.dev/)
+- [React](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Deployment
 
-**Use GitHub Codespaces**
+You can deploy Glass Kitchen using any static hosting provider (e.g., Vercel, Netlify, GitHub Pages):
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+1. Build the project:
+	```sh
+	npm run build
+	# or
+	bun run build
+	```
+2. Deploy the contents of the `dist/` folder.
 
-## What technologies are used for this project?
+_For custom domain setup, refer to your hosting provider's documentation._
 
-This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+MIT
