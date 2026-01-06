@@ -59,13 +59,15 @@ export default function Suppliers() {
             <CardTitle>Add New Supplier</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Input placeholder="Supplier Name" value={form.name} onChange={e => handleChange('name', e.target.value)} />
-            <Input placeholder="Contact Name" value={form.contactName} onChange={e => handleChange('contactName', e.target.value)} />
-            <Input placeholder="Phone" value={form.phone} onChange={e => handleChange('phone', e.target.value)} />
-            <Input placeholder="Email" value={form.email} onChange={e => handleChange('email', e.target.value)} />
-            <Input placeholder="Address" value={form.address} onChange={e => handleChange('address', e.target.value)} />
-            <Input placeholder="Company" value={form.company} onChange={e => handleChange('company', e.target.value)} />
-            <Input placeholder="Website" value={form.website} onChange={e => handleChange('website', e.target.value)} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input placeholder="Supplier Name" value={form.name} onChange={e => handleChange('name', e.target.value)} />
+              <Input placeholder="Contact Name" value={form.contactName} onChange={e => handleChange('contactName', e.target.value)} />
+              <Input placeholder="Phone" value={form.phone} onChange={e => handleChange('phone', e.target.value)} />
+              <Input placeholder="Email" value={form.email} onChange={e => handleChange('email', e.target.value)} />
+              <Input placeholder="Address" value={form.address} onChange={e => handleChange('address', e.target.value)} />
+              <Input placeholder="Company" value={form.company} onChange={e => handleChange('company', e.target.value)} />
+              <Input placeholder="Website" value={form.website} onChange={e => handleChange('website', e.target.value)} />
+            </div>
             <Input placeholder="Notes" value={form.notes} onChange={e => handleChange('notes', e.target.value)} />
             <Button variant="hero" onClick={handleAddSupplier}>Add Supplier</Button>
           </CardContent>
@@ -80,7 +82,7 @@ export default function Suppliers() {
                   <CardTitle>{supplier.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div><strong>Contact:</strong> {supplier.contactName}</div>
                     <div><strong>Phone:</strong> {supplier.phone}</div>
                     <div><strong>Email:</strong> {supplier.email}</div>
