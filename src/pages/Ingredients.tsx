@@ -1,3 +1,29 @@
+  const [editingIngredient, setEditingIngredient] = useState<any | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
+
+  const handleEdit = (ingredient: any) => {
+    setEditingIngredient(ingredient);
+    setEditValue(ingredient.name);
+  };
+
+  const handleEditSave = () => {
+    if (!editingIngredient) return;
+    fetch(`/api/ingredients/${editingIngredient.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...editingIngredient, name: editValue })
+    })
+      .then(res => res.json())
+      .then(updated => {
+        setAllIngredients(allIngredients.map((i: any) => i.id === updated.id ? updated : i));
+        setEditingIngredient(null);
+      });
+  };
+
+  const handleDelete = (id: string) => {
+    fetch(`/api/ingredients/${id}`, { method: "DELETE" })
+      .then(() => setAllIngredients(allIngredients.filter((i: any) => i.id !== id)));
+  };
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,12 +84,19 @@ export default function Ingredients() {
     // Add more mappings as needed
   };
 
-  const allIngredients = useMemo(() => {
-    // Remap categories to custom
-    return extractAllIngredients().map(ing => ({
-      ...ing,
-      category: categoryMap[ing.category?.toUpperCase() || ""] || ing.category?.toUpperCase() || "OTHER"
-    }));
+  const [allIngredients, setAllIngredients] = useState([]);
+
+  // Fetch ingredients from backend API
+  useEffect(() => {
+    fetch("/api/ingredients")
+      .then(res => res.json())
+      .then(data => {
+        // Remap categories to custom
+        setAllIngredients(data.map((ing: any) => ({
+          ...ing,
+          category: categoryMap[ing.category?.toUpperCase() || ""] || ing.category?.toUpperCase() || "OTHER"
+        })));
+      });
   }, []);
 
   const categories = useMemo(() => {
@@ -189,7 +222,21 @@ export default function Ingredients() {
                             className="animate-fade-in"
                             style={{ animationDelay: `${index * 20}ms` }}
                           >
-                            <TableCell className="font-medium">{ingredient.name}</TableCell>
+                            <TableCell className="font-medium">
+                              {editingIngredient && editingIngredient.id === ingredient.id ? (
+                                <div className="flex gap-2">
+                                  <Input value={editValue} onChange={e => setEditValue(e.target.value)} size={"sm" as any} />
+                                  <Button size="sm" variant="hero" onClick={handleEditSave}>Save</Button>
+                                  <Button size="sm" variant="outline" onClick={() => setEditingIngredient(null)}>Cancel</Button>
+                                </div>
+                              ) : (
+                                <div className="flex gap-2 items-center">
+                                  {ingredient.name}
+                                  <Button size="sm" variant="outline" onClick={() => handleEdit(ingredient)}>Edit</Button>
+                                  <Button size="sm" variant="destructive" onClick={() => handleDelete(ingredient.id)}>Delete</Button>
+                                </div>
+                              )}
+                            </TableCell>
                             <TableCell className="text-right">
                               <span className="text-muted-foreground">{ingredient.usedIn.length} recipes</span>
                             </TableCell>

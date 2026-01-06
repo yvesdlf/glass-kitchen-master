@@ -1,3 +1,29 @@
+  const [editingRecipe, setEditingRecipe] = useState<any | null>(null);
+  const [editRecipeName, setEditRecipeName] = useState("");
+
+  const handleEdit = (recipe: any) => {
+    setEditingRecipe(recipe);
+    setEditRecipeName(recipe.name);
+  };
+
+  const handleEditSave = () => {
+    if (!editingRecipe) return;
+    fetch(`/api/recipes/${editingRecipe.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...editingRecipe, name: editRecipeName })
+    })
+      .then(res => res.json())
+      .then(updated => {
+        setRecipes(recipes.map((r: any) => r.id === updated.id ? updated : r));
+        setEditingRecipe(null);
+      });
+  };
+
+  const handleDelete = (id: string) => {
+    fetch(`/api/recipes/${id}`, { method: "DELETE" })
+      .then(() => setRecipes(recipes.filter((r: any) => r.id !== id)));
+  };
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,23 +32,33 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Plus, Search, Filter, Clock, Users, ChefHat } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
-import { recipes, getAllCategories } from "@/data/recipes";
+// import { recipes, getAllCategories } from "@/data/recipes";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
-  const categories = getAllCategories();
-  
+  const [recipes, setRecipes] = useState([]);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  // Fetch recipes from backend API
+  useEffect(() => {
+    fetch("/api/recipes")
+      .then(res => res.json())
+      .then(data => {
+        setRecipes(data);
+        setCategories([...new Set(data.map((r: any) => r.category))]);
+      });
+  }, []);
+
   const filteredRecipes = useMemo(() => {
-    return recipes.filter(recipe => {
+    return recipes.filter((recipe: any) => {
       const matchesSearch = recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            recipe.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = !selectedCategory || recipe.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [recipes, searchQuery, selectedCategory]);
 
   return (
     <Layout>
@@ -92,7 +128,19 @@ export default function Recipes() {
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-lg font-display group-hover:text-primary transition-colors line-clamp-2">
-                      {recipe.name}
+                      {editingRecipe && editingRecipe.id === recipe.id ? (
+                        <div className="flex gap-2">
+                          <Input value={editRecipeName} onChange={e => setEditRecipeName(e.target.value)} size={"sm" as any} />
+                          <Button size="sm" variant="hero" onClick={handleEditSave}>Save</Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingRecipe(null)}>Cancel</Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2 items-center">
+                          {recipe.name}
+                          <Button size="sm" variant="outline" onClick={() => handleEdit(recipe)}>Edit</Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDelete(recipe.id)}>Delete</Button>
+                        </div>
+                      )}
                     </CardTitle>
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
