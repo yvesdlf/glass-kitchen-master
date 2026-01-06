@@ -53,6 +53,13 @@ const features = [
     color: "primary" as const,
   },
   {
+    title: "Suppliers",
+    description: "Add and manage your suppliers, contacts, and business details.",
+    icon: FileSpreadsheet,
+    to: "/suppliers",
+    color: "success" as const,
+  },
+  {
     title: "Upload Data",
     description: "Import recipes and price lists from spreadsheets. Bulk upload your existing data.",
     icon: Upload,
