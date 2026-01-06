@@ -94,6 +94,13 @@ export default function PriceLists() {
                           <td className="font-medium py-2">{ingredient.name}</td>
                           <td className="py-2">
                             <select className="border rounded px-2 py-1 text-xs">
+                              {customCategories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="py-2">
+                            <select className="border rounded px-2 py-1 text-xs">
                               <option value="">Select Supplier</option>
                               <option value="Supplier A">Supplier A</option>
                               <option value="Supplier B">Supplier B</option>
@@ -116,11 +123,11 @@ export default function PriceLists() {
                             <input type="text" className="border rounded px-2 py-1 w-32 text-xs" placeholder="e.g. 244g cans, 1.25L bottles x 12" />
                           </td>
                           <td className="py-2">
-                            <div className="flex flex-wrap gap-1">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-1">
                               {["Milk","Eggs","Fish","Crustacean shellfish","Tree nuts","Peanuts","Wheat","Soybeans","Sesame","Gluten-containing cereals (wheat, barley, rye, oats)","Celery","Lupin","Mollusks","Mustard","Sulfites/sulphur dioxide"].map(allergen => (
-                                <label key={allergen} className="flex items-center gap-1 text-xs">
+                                <label key={allergen} className="flex items-center gap-1 text-xs whitespace-nowrap">
                                   <input type="checkbox" className="accent-primary" />
-                                  {allergen}
+                                  <span>{allergen}</span>
                                 </label>
                               ))}
                             </div>
