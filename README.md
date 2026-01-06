@@ -1,3 +1,22 @@
+# Docker Deployment
+
+See DEPLOYMENT.md for full instructions.
+
+Quick start:
+
+```sh
+docker-compose up --build
+```
+
+Frontend: http://localhost:5173  
+Backend: http://localhost:3001  
+Database: Postgres on port 5432 (user: postgres, password: postgres, db: glasskitchen)
+
+To stop:
+
+```sh
+docker-compose down
+```
 
 # Glass Kitchen
 
