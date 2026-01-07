@@ -1181,6 +1181,83 @@ export const recipes: Recipe[] = [
   },
 ];
 
+// Category mapping for ingredients
+const getIngredientCategory = (name: string): string => {
+  const lowerName = name.toLowerCase();
+  
+  // BEEF
+  if (/beef|wagyu|ribeye|tenderloin|sirloin|brisket|short rib|ox/.test(lowerName) && !/oxtail/.test(lowerName)) return 'BEEF';
+  if (/oxtail/.test(lowerName)) return 'BEEF';
+  
+  // CHICKEN
+  if (/chicken|poultry/.test(lowerName)) return 'CHICKEN';
+  
+  // DUCK
+  if (/duck/.test(lowerName)) return 'DUCK';
+  
+  // LAMB
+  if (/lamb|mutton/.test(lowerName)) return 'LAMB';
+  
+  // PORK
+  if (/pork|bacon|pancetta|prosciutto|ham|chorizo|iberico|sausage|guanciale/.test(lowerName)) return 'PORK';
+  
+  // FISH
+  if (/salmon|tuna|hamachi|yellowtail|sea bass|sea bream|snapper|halibut|cod|mahi|barramundi|kingfish|mackerel|anchov|sardine|trout|fillet.*fish|fish fillet|fish stock/.test(lowerName)) return 'FISH';
+  
+  // SHELLFISH
+  if (/lobster|crab|shrimp|prawn|langoustine|crayfish|crawfish/.test(lowerName)) return 'SHELLFISH';
+  
+  // MOLLUSC
+  if (/mussel|clam|oyster|scallop|squid|octopus|calamari|cuttlefish/.test(lowerName)) return 'MOLLUSC';
+  
+  // CAVIAR
+  if (/caviar|roe|tobiko|ikura/.test(lowerName)) return 'CAVIAR';
+  
+  // TRUFFLE
+  if (/truffle/.test(lowerName)) return 'TRUFFLE';
+  
+  // DAIRY & EGGS
+  if (/milk|cream|butter|cheese|parmesan|pecorino|mascarpone|ricotta|mozzarella|burrata|yogurt|creme fraiche|sour cream|egg|yolk|crème/.test(lowerName)) return 'DAIRY & EGGS';
+  
+  // HERBS
+  if (/basil|thyme|rosemary|oregano|parsley|cilantro|coriander|mint|dill|chive|tarragon|sage|bay leaf|lemongrass|kaffir|curry leaf|shiso|chervil/.test(lowerName)) return 'HERBS';
+  
+  // CRESS
+  if (/cress|micro|microgreen/.test(lowerName)) return 'CRESS';
+  
+  // SPICES
+  if (/pepper|cumin|coriander seed|turmeric|paprika|saffron|cinnamon|cardamom|clove|nutmeg|star anise|fennel seed|mustard seed|chili|cayenne|togarashi|szechuan|yukari|furikake|five spice|garam masala|curry powder|sumac|za'atar|fleur de sel|sea salt|salt/.test(lowerName)) return 'SPICES';
+  
+  // JAPANESE
+  if (/miso|dashi|nori|wakame|kombu|bonito|sake|mirin|wasabi|soy sauce|tamari|ponzu|yuzu|matcha|panko|tempura|tofu|edamame|umeboshi|shiitake|enoki|shimeji|ramen|udon|soba/.test(lowerName)) return 'JAPANESE';
+  
+  // KOREAN
+  if (/gochujang|gochugaru|kimchi|doenjang|ssamjang|korean/.test(lowerName)) return 'KOREAN';
+  
+  // PERUVIAN
+  if (/aji|amarillo|leche de tigre|huancaina|rocoto|quinoa|chicha|cancha|choclo/.test(lowerName)) return 'PERUVIAN';
+  
+  // BALINESE
+  if (/sambal|kecap|bumbu|galangal|candlenut|terasi|belacan|tamarind|pandan|kemangi|kaffir|rendang|satay|gado|tempeh/.test(lowerName)) return 'BALINESE';
+  
+  // OIL / VINEGAR
+  if (/oil|olive oil|sesame oil|vegetable oil|neutral oil|vinegar|rice vinegar|balsamic|sherry vinegar/.test(lowerName)) return 'OIL / VINEGAR';
+  
+  // FRUIT
+  if (/apple|pear|lemon|lime|orange|grapefruit|yuzu|passion fruit|mango|papaya|pineapple|banana|berry|strawberry|raspberry|blueberry|blackberry|fig|grape|melon|watermelon|coconut|pomegranate|cherry|peach|apricot|plum|kiwi|avocado|tomato/.test(lowerName)) return 'FRUIT';
+  
+  // VEGETABLE
+  if (/onion|garlic|shallot|leek|celery|carrot|potato|sweet potato|radish|turnip|beet|cabbage|lettuce|spinach|kale|chard|arugula|rocket|asparagus|broccoli|cauliflower|zucchini|courgette|eggplant|aubergine|pepper|capsicum|cucumber|squash|pumpkin|corn|pea|bean|edamame|sprout|artichoke|fennel|bok choy|pak choi|daikon|ginger|galangal|green bean|snow pea|snap pea|shiitake|mushroom|portobello|cremini|button mushroom|oyster mushroom|chanterelle|porcini|morel/.test(lowerName)) return 'VEGETABLE';
+  
+  // BREAD & OTHER
+  if (/bread|brioche|baguette|ciabatta|focaccia|toast|crouton|panko|flour|rice|pasta|noodle|wonton|gyoza|dumpling|tortilla|wrap|cracker|chip|crisp/.test(lowerName)) return 'BREAD & OTHER';
+  
+  // DRY (pantry staples)
+  if (/sugar|honey|maple|syrup|stock|broth|sauce|paste|jam|jelly|preserve|dried|powder|starch|cornstarch|gelatin|agar|yeast|baking/.test(lowerName)) return 'DRY';
+  
+  return 'DRY'; // Default fallback
+};
+
 // Extract unique ingredients from all recipes
 export const extractAllIngredients = (): { name: string; category: string; usedIn: string[] }[] => {
   const ingredientMap = new Map<string, { category: string; usedIn: string[] }>();
@@ -1188,6 +1265,8 @@ export const extractAllIngredients = (): { name: string; category: string; usedI
   recipes.forEach(recipe => {
     recipe.ingredients.forEach(ing => {
       const key = ing.name.toLowerCase();
+      const category = getIngredientCategory(ing.name);
+      
       if (ingredientMap.has(key)) {
         const existing = ingredientMap.get(key)!;
         if (!existing.usedIn.includes(recipe.name)) {
@@ -1195,7 +1274,7 @@ export const extractAllIngredients = (): { name: string; category: string; usedI
         }
       } else {
         ingredientMap.set(key, {
-          category: ing.category || 'Uncategorized',
+          category,
           usedIn: [recipe.name],
         });
       }
@@ -1208,6 +1287,33 @@ export const extractAllIngredients = (): { name: string; category: string; usedI
     usedIn: data.usedIn,
   })).sort((a, b) => a.name.localeCompare(b.name));
 };
+
+// Get the ordered list of categories
+export const INGREDIENT_CATEGORIES = [
+  'BEEF',
+  'BREAD & OTHER',
+  'CAVIAR',
+  'CHICKEN',
+  'CRESS',
+  'DAIRY & EGGS',
+  'DRY',
+  'DUCK',
+  'FISH',
+  'FRUIT',
+  'HERBS',
+  'JAPANESE',
+  'PERUVIAN',
+  'KOREAN',
+  'BALINESE',
+  'LAMB',
+  'MOLLUSC',
+  'PORK',
+  'SHELLFISH',
+  'SPICES',
+  'TRUFFLE',
+  'VEGETABLE',
+  'OIL / VINEGAR',
+] as const;
 
 export const getRecipesByCategory = (category: string): Recipe[] => {
   return recipes.filter(r => r.category === category);
