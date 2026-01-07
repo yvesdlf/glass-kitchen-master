@@ -4,9 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, Trash2, Save, Image } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+
+const COURSE_OPTIONS = [
+  "Appetizers",
+  "Salads", 
+  "Raw",
+  "Mains",
+  "Sides",
+  "Vegan",
+  "Desserts",
+  "Specials"
+] as const;
 
 interface Ingredient {
   id: string;
@@ -71,20 +83,18 @@ export default function CreateRecipe() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="course">Course</Label>
-                  <select
-                    id="course"
-                    className="w-full border rounded-md px-3 py-2 bg-background text-foreground"
-                  >
-                    <option value="">Select course</option>
-                    <option value="Appetizers">Appetizers</option>
-                    <option value="Salads">Salads</option>
-                    <option value="Raw">Raw</option>
-                    <option value="Mains">Mains</option>
-                    <option value="Sides">Sides</option>
-                    <option value="Vegan">Vegan</option>
-                    <option value="Desserts">Desserts</option>
-                    <option value="Specials">Specials</option>
-                  </select>
+                  <Select>
+                    <SelectTrigger className="w-full bg-background">
+                      <SelectValue placeholder="Select course" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border">
+                      {COURSE_OPTIONS.map((course) => (
+                        <SelectItem key={course} value={course.toLowerCase()}>
+                          {course}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="yield">Yield (servings)</Label>
