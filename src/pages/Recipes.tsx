@@ -1,64 +1,28 @@
-  const [editingRecipe, setEditingRecipe] = useState<any | null>(null);
-  const [editRecipeName, setEditRecipeName] = useState("");
-
-  const handleEdit = (recipe: any) => {
-    setEditingRecipe(recipe);
-    setEditRecipeName(recipe.name);
-  };
-
-  const handleEditSave = () => {
-    if (!editingRecipe) return;
-    fetch(`/api/recipes/${editingRecipe.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...editingRecipe, name: editRecipeName })
-    })
-      .then(res => res.json())
-      .then(updated => {
-        setRecipes(recipes.map((r: any) => r.id === updated.id ? updated : r));
-        setEditingRecipe(null);
-      });
-  };
-
-  const handleDelete = (id: string) => {
-    fetch(`/api/recipes/${id}`, { method: "DELETE" })
-      .then(() => setRecipes(recipes.filter((r: any) => r.id !== id)));
-  };
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Plus, Search, Filter, Clock, Users, ChefHat } from "lucide-react";
+import { BookOpen, Plus, Search, Clock, Users, ChefHat } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
-// import { recipes, getAllCategories } from "@/data/recipes";
+import { recipes, getAllCategories } from "@/data/recipes";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [recipes, setRecipes] = useState([]);
-  const [categories, setCategories] = useState<string[]>([]);
-
-  // Fetch recipes from backend API
-  useEffect(() => {
-    fetch("/api/recipes")
-      .then(res => res.json())
-      .then(data => {
-        setRecipes(data);
-        setCategories([...new Set(data.map((r: any) => r.category))]);
-      });
-  }, []);
+  
+  const categories = getAllCategories();
 
   const filteredRecipes = useMemo(() => {
-    return recipes.filter((recipe: any) => {
+    return recipes.filter((recipe) => {
       const matchesSearch = recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            recipe.cuisine.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = !selectedCategory || recipe.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [recipes, searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory]);
 
   return (
     <Layout>
@@ -120,69 +84,49 @@ export default function Recipes() {
         {filteredRecipes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRecipes.map((recipe, index) => (
-              <Card 
-                key={recipe.id} 
-                className="group hover:shadow-lg transition-all duration-300 animate-fade-in cursor-pointer overflow-hidden"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg font-display group-hover:text-primary transition-colors line-clamp-2">
-                      {editingRecipe && editingRecipe.id === recipe.id ? (
-                        <div className="flex gap-2">
-                          <Input value={editRecipeName} onChange={e => setEditRecipeName(e.target.value)} size={"sm" as any} />
-                          <Button size="sm" variant="hero" onClick={handleEditSave}>Save</Button>
-                          <Button size="sm" variant="outline" onClick={() => setEditingRecipe(null)}>Cancel</Button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2 items-center">
-                          {recipe.name}
-                          <Button size="sm" variant="outline" onClick={() => handleEdit(recipe)}>Edit</Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleDelete(recipe.id)}>Delete</Button>
-                        </div>
-                      )}
-                    </CardTitle>
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                    {recipe.description}
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary" className="text-xs">
-                      {recipe.cuisine}
-                    </Badge>
-                    {/* Show course badge, and if course is 'Desserts' or 'Specials', highlight */}
-                    <Badge variant={['Desserts', 'Specials'].includes(recipe.course) ? "default" : "outline"} className="text-xs">
-                      {recipe.course}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>{recipe.prepTime}</span>
+              <Link to={`/recipes/${recipe.id}`} key={recipe.id}>
+                <Card 
+                  className="group hover:shadow-lg transition-all duration-300 animate-fade-in cursor-pointer overflow-hidden h-full"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <CardTitle className="text-lg font-display group-hover:text-primary transition-colors line-clamp-2">
+                        {recipe.name}
+                      </CardTitle>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />
-                      <span>{recipe.portionSize}</span>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                      {recipe.description}
+                    </p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="secondary" className="text-xs">
+                        {recipe.cuisine}
+                      </Badge>
+                      <Badge variant={['Desserts', 'Specials'].includes(recipe.course) ? "default" : "outline"} className="text-xs">
+                        {recipe.course}
+                      </Badge>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground">
-                    <ChefHat className="w-3.5 h-3.5" />
-                    <span>{recipe.ingredients.length} ingredients</span>
-                  </div>
-
-                  {/* Allergens - placeholder logic, replace with real allergen data from PriceLists */}
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {/* Example: show allergens for demo purposes. Replace with real logic to pull allergens for recipe ingredients. */}
-                    {["Milk","Eggs","Fish","Crustacean shellfish","Tree nuts","Peanuts","Wheat","Soybeans","Sesame","Gluten-containing cereals (wheat, barley, rye, oats)","Celery","Lupin","Mollusks","Mustard","Sulfites/sulphur dioxide"].map((allergen, idx) => (
-                      <Badge key={allergen+idx} variant="outline" className="text-xxs" style={{ display: Math.random() > 0.95 ? 'inline-block' : 'none' }}>{allergen}</Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>{recipe.prepTime}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5" />
+                        <span>{recipe.portionSize}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-1 mt-3 text-xs text-muted-foreground">
+                      <ChefHat className="w-3.5 h-3.5" />
+                      <span>{recipe.ingredients.length} ingredients</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         ) : (

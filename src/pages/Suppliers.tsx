@@ -30,40 +30,25 @@ export default function Suppliers() {
     notes: ""
   });
 
-  // Fetch suppliers from backend API
-  useEffect(() => {
-    fetch("/api/suppliers")
-      .then(res => res.json())
-      .then(data => setSuppliers(data));
-  }, []);
-
   const handleChange = (field: keyof Supplier, value: string) => {
     setForm({ ...form, [field]: value });
   };
 
   const handleAddSupplier = () => {
     if (!form.name) return;
-    // Post to backend API
-    fetch("/api/suppliers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    })
-      .then(res => res.json())
-      .then(newSupplier => {
-        setSuppliers([...suppliers, newSupplier]);
-        setForm({
-          id: "",
-          name: "",
-          contactName: "",
-          phone: "",
-          email: "",
-          address: "",
-          company: "",
-          website: "",
-          notes: ""
-        });
-      });
+    const newSupplier = { ...form, id: crypto.randomUUID() };
+    setSuppliers([...suppliers, newSupplier]);
+    setForm({
+      id: "",
+      name: "",
+      contactName: "",
+      phone: "",
+      email: "",
+      address: "",
+      company: "",
+      website: "",
+      notes: ""
+    });
   };
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -80,22 +65,13 @@ export default function Suppliers() {
 
   const handleSaveEdit = () => {
     if (!editForm) return;
-    fetch(`/api/suppliers/${editForm.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editForm)
-    })
-      .then(res => res.json())
-      .then(updated => {
-        setSuppliers(suppliers.map(s => s.id === updated.id ? updated : s));
-        setEditingId(null);
-        setEditForm(null);
-      });
+    setSuppliers(suppliers.map(s => s.id === editForm.id ? editForm : s));
+    setEditingId(null);
+    setEditForm(null);
   };
 
   const handleDelete = (id: string) => {
-    fetch(`/api/suppliers/${id}`, { method: "DELETE" })
-      .then(() => setSuppliers(suppliers.filter(s => s.id !== id)));
+    setSuppliers(suppliers.filter(s => s.id !== id));
   };
 
   return (
