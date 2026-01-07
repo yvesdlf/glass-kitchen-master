@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Package, Plus, Search, Upload, Grid3X3, List } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
-import { extractAllIngredients } from "@/data/recipes";
+import { extractAllIngredients, INGREDIENT_CATEGORIES } from "@/data/recipes";
 
 export default function Ingredients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,9 +16,10 @@ export default function Ingredients() {
 
   const allIngredients = useMemo(() => extractAllIngredients(), []);
 
+  // Use the predefined category order
   const categories = useMemo(() => {
-    const cats = [...new Set(allIngredients.map(i => i.category))];
-    return cats.sort();
+    const presentCategories = [...new Set(allIngredients.map(i => i.category))];
+    return INGREDIENT_CATEGORIES.filter(cat => presentCategories.includes(cat));
   }, [allIngredients]);
 
   const filteredIngredients = useMemo(() => {
@@ -120,9 +121,9 @@ export default function Ingredients() {
         {/* Ingredients Display */}
         {filteredIngredients.length > 0 ? (
           viewMode === "list" ? (
-            Object.keys(groupedIngredients).sort().map(category => (
+            INGREDIENT_CATEGORIES.filter(cat => groupedIngredients[cat]).map(category => (
               <div key={category} className="mb-8">
-                <h2 className="text-xl font-bold mb-2 mt-6">{category}</h2>
+                <h2 className="text-xl font-bold mb-4 mt-6 text-primary">{category}</h2>
                 <Card className="animate-fade-in">
                   <Table>
                     <TableHeader>
@@ -150,9 +151,9 @@ export default function Ingredients() {
               </div>
             ))
           ) : (
-            Object.keys(groupedIngredients).sort().map(category => (
+            INGREDIENT_CATEGORIES.filter(cat => groupedIngredients[cat]).map(category => (
               <div key={category} className="mb-8">
-                <h2 className="text-xl font-bold mb-2 mt-6">{category}</h2>
+                <h2 className="text-xl font-bold mb-4 mt-6 text-primary">{category}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {groupedIngredients[category].map((ingredient, index) => (
                     <Card 
