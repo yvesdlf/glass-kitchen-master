@@ -1,36 +1,10 @@
-  const [editingIngredient, setEditingIngredient] = useState<any | null>(null);
-  const [editValue, setEditValue] = useState<string>("");
-
-  const handleEdit = (ingredient: any) => {
-    setEditingIngredient(ingredient);
-    setEditValue(ingredient.name);
-  };
-
-  const handleEditSave = () => {
-    if (!editingIngredient) return;
-    fetch(`/api/ingredients/${editingIngredient.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...editingIngredient, name: editValue })
-    })
-      .then(res => res.json())
-      .then(updated => {
-        setAllIngredients(allIngredients.map((i: any) => i.id === updated.id ? updated : i));
-        setEditingIngredient(null);
-      });
-  };
-
-  const handleDelete = (id: string) => {
-    fetch(`/api/ingredients/${id}`, { method: "DELETE" })
-      .then(() => setAllIngredients(allIngredients.filter((i: any) => i.id !== id)));
-  };
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Package, Plus, Search, Filter, Upload, Grid3X3, List } from "lucide-react";
+import { Package, Plus, Search, Upload, Grid3X3, List } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { extractAllIngredients } from "@/data/recipes";
@@ -40,78 +14,11 @@ export default function Ingredients() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
-  // Custom category order
-  const customCategories = [
-    "BEEF",
-    "BREAD & OTHER",
-    "CAVIAR",
-    "CHICKEN",
-    "CRESS",
-    "DAIRY & EGGS",
-    "DRY",
-    "DUCK",
-    "FISH",
-    "FRUIT",
-    "HERBS",
-    "JAPANESE",
-    "PERUVIAN",
-    "KOREAN",
-    "BALINESE",
-    "LAMB",
-    "MOLLUSC",
-    "PORK",
-    "SHELLFISH",
-    "SPICES",
-    "TRUFFLE",
-    "VEGETABLE",
-    "OIL / VINEGAR"
-  ];
-
-  // Map ingredient categories to custom categories
-  const categoryMap: Record<string, string> = {
-    "Protein": "BEEF",
-    "Pantry": "BREAD & OTHER",
-    "Seasoning": "SPICES",
-    "Herbs": "HERBS",
-    "Garnish": "HERBS",
-    "Produce": "VEGETABLE",
-    "Dairy": "DAIRY & EGGS",
-    "Eggs": "DAIRY & EGGS",
-    "Spices": "SPICES",
-    "Truffle": "TRUFFLE",
-    "Oil": "OIL / VINEGAR",
-    "Vinegar": "OIL / VINEGAR",
-    // Add more mappings as needed
-  };
-
-  const [allIngredients, setAllIngredients] = useState([]);
-
-  // Fetch ingredients from backend API
-  useEffect(() => {
-    fetch("/api/ingredients")
-      .then(res => res.json())
-      .then(data => {
-        // Remap categories to custom
-        setAllIngredients(data.map((ing: any) => ({
-          ...ing,
-          category: categoryMap[ing.category?.toUpperCase() || ""] || ing.category?.toUpperCase() || "OTHER"
-        })));
-      });
-  }, []);
+  const allIngredients = useMemo(() => extractAllIngredients(), []);
 
   const categories = useMemo(() => {
-    // Only show custom categories that have ingredients
-    return customCategories.filter(cat => allIngredients.some(i => i.category === cat));
-  }, [allIngredients]);
-
-  // Group ingredients by category
-  const groupedIngredients = useMemo(() => {
-    const groups: Record<string, typeof allIngredients> = {};
-    allIngredients.forEach(ingredient => {
-      if (!groups[ingredient.category]) groups[ingredient.category] = [];
-      groups[ingredient.category].push(ingredient);
-    });
-    return groups;
+    const cats = [...new Set(allIngredients.map(i => i.category))];
+    return cats.sort();
   }, [allIngredients]);
 
   const filteredIngredients = useMemo(() => {
@@ -122,6 +29,16 @@ export default function Ingredients() {
     });
   }, [allIngredients, searchQuery, selectedCategory]);
 
+  // Group ingredients by category
+  const groupedIngredients = useMemo(() => {
+    const groups: Record<string, typeof allIngredients> = {};
+    filteredIngredients.forEach(ingredient => {
+      if (!groups[ingredient.category]) groups[ingredient.category] = [];
+      groups[ingredient.category].push(ingredient);
+    });
+    return groups;
+  }, [filteredIngredients]);
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -130,7 +47,7 @@ export default function Ingredients() {
           <div className="animate-fade-in">
             <h1 className="text-3xl font-display font-bold text-foreground mb-2">Ingredients</h1>
             <p className="text-muted-foreground">
-              {allIngredients.length} unique ingredients extracted from {filteredIngredients.reduce((acc, ing) => acc + ing.usedIn.length, 0)} recipe uses
+              {allIngredients.length} unique ingredients extracted from recipes
             </p>
           </div>
           <div className="flex gap-3 animate-fade-in">
@@ -200,77 +117,59 @@ export default function Ingredients() {
           })}
         </div>
 
-        {/* Ingredients Display - Grouped by Category */}
+        {/* Ingredients Display */}
         {filteredIngredients.length > 0 ? (
           viewMode === "list" ? (
-            categories.map(category => (
-              groupedIngredients[category]?.length ? (
-                <div key={category} className="mb-8">
-                  <h2 className="text-xl font-bold mb-2 mt-6">{category}</h2>
-                  <Card className="animate-fade-in">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[300px]">Ingredient</TableHead>
-                          <TableHead className="text-right">Used In</TableHead>
+            Object.keys(groupedIngredients).sort().map(category => (
+              <div key={category} className="mb-8">
+                <h2 className="text-xl font-bold mb-2 mt-6">{category}</h2>
+                <Card className="animate-fade-in">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[300px]">Ingredient</TableHead>
+                        <TableHead className="text-right">Used In</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {groupedIngredients[category].map((ingredient, index) => (
+                        <TableRow 
+                          key={ingredient.name}
+                          className="animate-fade-in"
+                          style={{ animationDelay: `${index * 20}ms` }}
+                        >
+                          <TableCell className="font-medium">{ingredient.name}</TableCell>
+                          <TableCell className="text-right">
+                            <span className="text-muted-foreground">{ingredient.usedIn.length} recipes</span>
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {groupedIngredients[category].filter(ingredient => filteredIngredients.includes(ingredient)).map((ingredient, index) => (
-                          <TableRow 
-                            key={ingredient.name}
-                            className="animate-fade-in"
-                            style={{ animationDelay: `${index * 20}ms` }}
-                          >
-                            <TableCell className="font-medium">
-                              {editingIngredient && editingIngredient.id === ingredient.id ? (
-                                <div className="flex gap-2">
-                                  <Input value={editValue} onChange={e => setEditValue(e.target.value)} size={"sm" as any} />
-                                  <Button size="sm" variant="hero" onClick={handleEditSave}>Save</Button>
-                                  <Button size="sm" variant="outline" onClick={() => setEditingIngredient(null)}>Cancel</Button>
-                                </div>
-                              ) : (
-                                <div className="flex gap-2 items-center">
-                                  {ingredient.name}
-                                  <Button size="sm" variant="outline" onClick={() => handleEdit(ingredient)}>Edit</Button>
-                                  <Button size="sm" variant="destructive" onClick={() => handleDelete(ingredient.id)}>Delete</Button>
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <span className="text-muted-foreground">{ingredient.usedIn.length} recipes</span>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Card>
-                </div>
-              ) : null
+                      ))}
+                    </TableBody>
+                  </Table>
+                </Card>
+              </div>
             ))
           ) : (
-            categories.map(category => (
-              groupedIngredients[category]?.length ? (
-                <div key={category} className="mb-8">
-                  <h2 className="text-xl font-bold mb-2 mt-6">{category}</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    {groupedIngredients[category].filter(ingredient => filteredIngredients.includes(ingredient)).map((ingredient, index) => (
-                      <Card 
-                        key={ingredient.name}
-                        className="hover:shadow-md transition-all animate-fade-in cursor-pointer"
-                        style={{ animationDelay: `${index * 20}ms` }}
-                      >
-                        <CardContent className="p-4">
-                          <h4 className="font-medium text-sm mb-2 line-clamp-1">{ingredient.name}</h4>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">{ingredient.usedIn.length} uses</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+            Object.keys(groupedIngredients).sort().map(category => (
+              <div key={category} className="mb-8">
+                <h2 className="text-xl font-bold mb-2 mt-6">{category}</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {groupedIngredients[category].map((ingredient, index) => (
+                    <Card 
+                      key={ingredient.name}
+                      className="hover:shadow-md transition-all animate-fade-in cursor-pointer"
+                      style={{ animationDelay: `${index * 20}ms` }}
+                    >
+                      <CardContent className="p-4">
+                        <h4 className="font-medium text-sm mb-2 line-clamp-1">{ingredient.name}</h4>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">{ingredient.usedIn.length} uses</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
-              ) : null
+              </div>
             ))
           )
         ) : (
