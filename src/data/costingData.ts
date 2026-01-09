@@ -1,226 +1,328 @@
-// Ingredient pricing with wastage calculations
-// Formula: True Cost = Cost Price / (1 - Wastage%)
+// Ingredient costing data matching Excel format
+// Formula: Wastage% = Waste Weight / Initial Weight
+// True Cost = Unit Cost / (1 - Wastage%)
 
-export interface IngredientCost {
-  name: string;
-  group: string;
-  costPrice: number; // per kg/unit
-  unit: string;
-  wastagePercent: number;
-  trueCost: number; // calculated: costPrice / (1 - wastage)
-}
-
-export interface RecipeCostItem {
-  ingredient: string;
-  quantity: number;
-  unit: string;
+export interface IngredientCosting {
+  itemCategoryCode: string;
+  category: string;
+  ingredientName: string;
+  description: string;
   unitCost: number;
+  baseUnitOfMeasure: string;
+  conditioning: number;
+  initialWeight: number;
+  wasteWeight: number;
+  yield: number;
   wastagePercent: number;
   trueCost: number;
-  lineCost: number;
 }
 
-export interface RecipeCostSummary {
-  recipeId: string;
-  recipeName: string;
-  course: string;
-  portions: number;
-  ingredients: RecipeCostItem[];
-  totalCost: number;
-  costPerPortion: number;
-  suggestedPrice: number;
-  foodCostPercent: number;
-  grossProfit: number;
-  grossProfitPercent: number;
-}
-
-// Calculate true cost with wastage
-export const calculateTrueCost = (costPrice: number, wastagePercent: number): number => {
-  if (wastagePercent >= 100) return costPrice;
-  return costPrice / (1 - wastagePercent / 100);
+// Calculate wastage and true cost based on initial/waste weights
+export const calculateWastage = (initialWeight: number, wasteWeight: number): number => {
+  if (initialWeight <= 0) return 0;
+  return (wasteWeight / initialWeight) * 100;
 };
 
-// Calculate suggested price based on target food cost percentage
-export const calculateSuggestedPrice = (cost: number, targetFoodCostPercent: number = 30): number => {
-  return cost / (targetFoodCostPercent / 100);
+export const calculateTrueCost = (unitCost: number, wastagePercent: number): number => {
+  if (wastagePercent >= 100) return unitCost;
+  return unitCost / (1 - wastagePercent / 100);
 };
 
-// Sample ingredient costs based on Excel data
-export const ingredientCosts: IngredientCost[] = [
-  // Fish
-  { name: "Chilean Sea Bass", group: "Fish", costPrice: 238.00, unit: "kg", wastagePercent: 30, trueCost: 309.40 },
-  { name: "Salmon", group: "Fish", costPrice: 50.00, unit: "kg", wastagePercent: 40, trueCost: 70.00 },
-  { name: "Sea Bass", group: "Fish", costPrice: 161.00, unit: "kg", wastagePercent: 60, trueCost: 257.60 },
-  { name: "Yellowfin Tuna", group: "Fish", costPrice: 293.00, unit: "kg", wastagePercent: 25, trueCost: 366.25 },
-  { name: "Yellowtail", group: "Fish", costPrice: 200.00, unit: "kg", wastagePercent: 50, trueCost: 300.00 },
-  { name: "Smoked Salmon", group: "Fish", costPrice: 84.00, unit: "kg", wastagePercent: 0, trueCost: 84.00 },
-  
-  // Shellfish
-  { name: "Baby Squid", group: "Shellfish", costPrice: 86.00, unit: "kg", wastagePercent: 15, trueCost: 98.90 },
-  { name: "Lobster", group: "Shellfish", costPrice: 235.00, unit: "kg", wastagePercent: 0, trueCost: 235.00 },
-  { name: "Octopus", group: "Shellfish", costPrice: 140.00, unit: "kg", wastagePercent: 50, trueCost: 210.00 },
-  { name: "Prawns 30/40", group: "Shellfish", costPrice: 42.00, unit: "kg", wastagePercent: 20, trueCost: 50.40 },
-  { name: "Prawns 11/15", group: "Shellfish", costPrice: 54.00, unit: "kg", wastagePercent: 15, trueCost: 62.10 },
-  { name: "Soft Shell Crab", group: "Shellfish", costPrice: 200.00, unit: "kg", wastagePercent: 0, trueCost: 200.00 },
-  
-  // Meat
-  { name: "Beef Cube Roll", group: "Meat", costPrice: 360.00, unit: "kg", wastagePercent: 15, trueCost: 414.00 },
-  { name: "Beef OP Ribs", group: "Meat", costPrice: 180.00, unit: "kg", wastagePercent: 10, trueCost: 198.00 },
-  { name: "Beef Shortribs", group: "Meat", costPrice: 65.00, unit: "kg", wastagePercent: 35, trueCost: 87.75 },
-  { name: "Beef Tenderloin", group: "Meat", costPrice: 145.00, unit: "kg", wastagePercent: 25, trueCost: 181.25 },
-  { name: "Lamb Rack", group: "Meat", costPrice: 62.00, unit: "kg", wastagePercent: 30, trueCost: 80.60 },
-  { name: "Wagyu Cube Roll 9+", group: "Meat", costPrice: 415.00, unit: "kg", wastagePercent: 15, trueCost: 477.25 },
-  { name: "Wagyu T-Bone", group: "Meat", costPrice: 150.00, unit: "kg", wastagePercent: 5, trueCost: 157.50 },
-  
-  // Poultry
-  { name: "Chicken Baby", group: "Poultry", costPrice: 8.50, unit: "kg", wastagePercent: 35, trueCost: 11.48 },
-  { name: "Chicken Thighs", group: "Poultry", costPrice: 39.00, unit: "kg", wastagePercent: 15, trueCost: 44.85 },
-  { name: "Duck Breast", group: "Poultry", costPrice: 85.00, unit: "kg", wastagePercent: 20, trueCost: 102.00 },
-  
-  // Produce
-  { name: "Mixed Salad Greens", group: "Produce", costPrice: 28.00, unit: "kg", wastagePercent: 15, trueCost: 32.35 },
-  { name: "Cherry Tomatoes", group: "Produce", costPrice: 18.00, unit: "kg", wastagePercent: 10, trueCost: 19.80 },
-  { name: "Avocado", group: "Produce", costPrice: 35.00, unit: "kg", wastagePercent: 40, trueCost: 50.00 },
-  { name: "Asparagus", group: "Produce", costPrice: 45.00, unit: "kg", wastagePercent: 25, trueCost: 56.25 },
-  { name: "Shallots", group: "Produce", costPrice: 12.00, unit: "kg", wastagePercent: 15, trueCost: 13.85 },
-  
-  // Dairy
-  { name: "Butter", group: "Dairy", costPrice: 25.00, unit: "kg", wastagePercent: 0, trueCost: 25.00 },
-  { name: "Heavy Cream", group: "Dairy", costPrice: 18.00, unit: "L", wastagePercent: 5, trueCost: 18.90 },
-  { name: "Parmesan", group: "Dairy", costPrice: 65.00, unit: "kg", wastagePercent: 10, trueCost: 71.50 },
-  
-  // Pantry
-  { name: "Olive Oil", group: "Pantry", costPrice: 22.00, unit: "L", wastagePercent: 0, trueCost: 22.00 },
-  { name: "Soy Sauce", group: "Pantry", costPrice: 8.00, unit: "L", wastagePercent: 0, trueCost: 8.00 },
-  { name: "Miso Paste", group: "Pantry", costPrice: 15.00, unit: "kg", wastagePercent: 0, trueCost: 15.00 },
+// Ingredient master data from Excel
+export const ingredientCostings: IngredientCosting[] = [
+  {
+    itemCategoryCode: "PR001",
+    category: "BEEF",
+    ingredientName: "Beef Tenderloin",
+    description: "3/4 kg Black Angus",
+    unitCost: 30.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 6,
+    wasteWeight: 1,
+    yield: 5,
+    wastagePercent: 16.7,
+    trueCost: 35.00,
+  },
+  {
+    itemCategoryCode: "PR002",
+    category: "BREAD & OTHER",
+    ingredientName: "Brioche",
+    description: "30g Buns",
+    unitCost: 2.00,
+    baseUnitOfMeasure: "EACH",
+    conditioning: 30,
+    initialWeight: 24,
+    wasteWeight: 0,
+    yield: 24,
+    wastagePercent: 0.0,
+    trueCost: 2.00,
+  },
+  {
+    itemCategoryCode: "PR003",
+    category: "CAVIAR",
+    ingredientName: "Beluga 125g",
+    description: "125g Kaviari",
+    unitCost: 125.00,
+    baseUnitOfMeasure: "G",
+    conditioning: 1000,
+    initialWeight: 1,
+    wasteWeight: 0,
+    yield: 1,
+    wastagePercent: 0.0,
+    trueCost: 125.00,
+  },
+  {
+    itemCategoryCode: "PR004",
+    category: "CHICKEN",
+    ingredientName: "Corn fed Baby Chicken",
+    description: "350g whole",
+    unitCost: 12.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 3,
+    wasteWeight: 2,
+    yield: 1,
+    wastagePercent: 66.7,
+    trueCost: 20.00,
+  },
+  {
+    itemCategoryCode: "PR005",
+    category: "CRESS",
+    ingredientName: "Coriander Cress",
+    description: "20g Punt",
+    unitCost: 2.00,
+    baseUnitOfMeasure: "EACH",
+    conditioning: 1,
+    initialWeight: 4,
+    wasteWeight: 2,
+    yield: 2,
+    wastagePercent: 50.0,
+    trueCost: 3.00,
+  },
+  {
+    itemCategoryCode: "PR006",
+    category: "DAIRY & EGGS",
+    ingredientName: "Whole eggs",
+    description: "36g each",
+    unitCost: 1.00,
+    baseUnitOfMeasure: "EACH",
+    conditioning: 1,
+    initialWeight: 56,
+    wasteWeight: 1,
+    yield: 55,
+    wastagePercent: 1.8,
+    trueCost: 1.02,
+  },
+  {
+    itemCategoryCode: "PR007",
+    category: "DRY",
+    ingredientName: "Salt",
+    description: "500g Fine sea salt",
+    unitCost: 2.10,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 2,
+    wasteWeight: 0.1,
+    yield: 1.9,
+    wastagePercent: 5.0,
+    trueCost: 2.21,
+  },
+  {
+    itemCategoryCode: "PR008",
+    category: "DUCK",
+    ingredientName: "Duck Breast",
+    description: "350g Magret",
+    unitCost: 15.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 4,
+    wasteWeight: 1,
+    yield: 3,
+    wastagePercent: 25.0,
+    trueCost: 18.75,
+  },
+  {
+    itemCategoryCode: "PR009",
+    category: "FISH",
+    ingredientName: "Snapper",
+    description: "1.2kg Whole fish",
+    unitCost: 24.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 6,
+    wasteWeight: 1,
+    yield: 5,
+    wastagePercent: 16.7,
+    trueCost: 28.00,
+  },
+  {
+    itemCategoryCode: "PR010",
+    category: "FRUIT",
+    ingredientName: "Granny Smith",
+    description: "1kg Bags",
+    unitCost: 2.20,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 7,
+    wasteWeight: 2,
+    yield: 5,
+    wastagePercent: 28.6,
+    trueCost: 2.83,
+  },
+  {
+    itemCategoryCode: "PR011",
+    category: "HERBS",
+    ingredientName: "Flat Parsley",
+    description: "1kg Bags",
+    unitCost: 1.10,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 3,
+    wasteWeight: 1,
+    yield: 2,
+    wastagePercent: 33.3,
+    trueCost: 1.47,
+  },
+  {
+    itemCategoryCode: "PR012",
+    category: "JAPANESE",
+    ingredientName: "Soya Sauce GF",
+    description: "18ltr Kikoman Gluten Free",
+    unitCost: 130.00,
+    baseUnitOfMeasure: "LT",
+    conditioning: 18000,
+    initialWeight: 18,
+    wasteWeight: 0.5,
+    yield: 17.5,
+    wastagePercent: 2.8,
+    trueCost: 133.61,
+  },
+  {
+    itemCategoryCode: "PR013",
+    category: "LAMB",
+    ingredientName: "Lamb Rack",
+    description: "7 Bone French Thomas foods",
+    unitCost: 27.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 2,
+    wasteWeight: 1,
+    yield: 1,
+    wastagePercent: 50.0,
+    trueCost: 40.50,
+  },
+  {
+    itemCategoryCode: "PR014",
+    category: "MOLLUSC",
+    ingredientName: "Baby Squid",
+    description: "U20 Cleaned",
+    unitCost: 12.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 2,
+    wasteWeight: 0.2,
+    yield: 1.8,
+    wastagePercent: 10.0,
+    trueCost: 13.20,
+  },
+  {
+    itemCategoryCode: "PR015",
+    category: "PORK",
+    ingredientName: "Pork Ribs",
+    description: "2kg Racks",
+    unitCost: 20.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 5,
+    wasteWeight: 0.4,
+    yield: 4.6,
+    wastagePercent: 8.0,
+    trueCost: 21.60,
+  },
+  {
+    itemCategoryCode: "PR016",
+    category: "SHELLFISH",
+    ingredientName: "Prawns U12",
+    description: "2kg Blocks",
+    unitCost: 28.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 2,
+    wasteWeight: 1,
+    yield: 1,
+    wastagePercent: 50.0,
+    trueCost: 42.00,
+  },
+  {
+    itemCategoryCode: "PR017",
+    category: "SPICES",
+    ingredientName: "Whole Black pepper",
+    description: "1kg Bags",
+    unitCost: 5.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 3,
+    wasteWeight: 2,
+    yield: 1,
+    wastagePercent: 66.7,
+    trueCost: 8.33,
+  },
+  {
+    itemCategoryCode: "PR018",
+    category: "TRUFFLE",
+    ingredientName: "Summer Black Truffle",
+    description: "1kg Bags",
+    unitCost: 70.00,
+    baseUnitOfMeasure: "G",
+    conditioning: 1000,
+    initialWeight: 4,
+    wasteWeight: 3,
+    yield: 1,
+    wastagePercent: 75.0,
+    trueCost: 122.50,
+  },
+  {
+    itemCategoryCode: "PR019",
+    category: "VEGETABLE",
+    ingredientName: "White Onion",
+    description: "1kg Bags",
+    unitCost: 2.00,
+    baseUnitOfMeasure: "KG",
+    conditioning: 1000,
+    initialWeight: 2,
+    wasteWeight: 0.1,
+    yield: 1.9,
+    wastagePercent: 5.0,
+    trueCost: 2.10,
+  },
+  {
+    itemCategoryCode: "PR020",
+    category: "OIL / VINEGAR",
+    ingredientName: "Sunflower Oil",
+    description: "1.5Lt bot",
+    unitCost: 2.45,
+    baseUnitOfMeasure: "LT",
+    conditioning: 1000,
+    initialWeight: 4,
+    wasteWeight: 0.4,
+    yield: 3.6,
+    wastagePercent: 10.0,
+    trueCost: 2.70,
+  },
 ];
 
-// Sample costed recipes
-export const costedRecipes: RecipeCostSummary[] = [
-  {
-    recipeId: "wagyu-tataki",
-    recipeName: "A5 Wagyu Tataki",
-    course: "Appetizers",
-    portions: 4,
-    ingredients: [
-      { ingredient: "Wagyu Cube Roll 9+", quantity: 0.300, unit: "kg", unitCost: 415.00, wastagePercent: 15, trueCost: 477.25, lineCost: 143.18 },
-      { ingredient: "Soy Sauce", quantity: 0.050, unit: "L", unitCost: 8.00, wastagePercent: 0, trueCost: 8.00, lineCost: 0.40 },
-      { ingredient: "Olive Oil", quantity: 0.030, unit: "L", unitCost: 22.00, wastagePercent: 0, trueCost: 22.00, lineCost: 0.66 },
-      { ingredient: "Shallots", quantity: 0.050, unit: "kg", unitCost: 12.00, wastagePercent: 15, trueCost: 13.85, lineCost: 0.69 },
-      { ingredient: "Mixed Salad Greens", quantity: 0.080, unit: "kg", unitCost: 28.00, wastagePercent: 15, trueCost: 32.35, lineCost: 2.59 },
-    ],
-    totalCost: 147.52,
-    costPerPortion: 36.88,
-    suggestedPrice: 122.93,
-    foodCostPercent: 30,
-    grossProfit: 86.05,
-    grossProfitPercent: 70,
-  },
-  {
-    recipeId: "grilled-sea-bass",
-    recipeName: "Grilled Mediterranean Sea Bass",
-    course: "Mains",
-    portions: 2,
-    ingredients: [
-      { ingredient: "Sea Bass", quantity: 0.400, unit: "kg", unitCost: 161.00, wastagePercent: 60, trueCost: 257.60, lineCost: 103.04 },
-      { ingredient: "Asparagus", quantity: 0.150, unit: "kg", unitCost: 45.00, wastagePercent: 25, trueCost: 56.25, lineCost: 8.44 },
-      { ingredient: "Cherry Tomatoes", quantity: 0.100, unit: "kg", unitCost: 18.00, wastagePercent: 10, trueCost: 19.80, lineCost: 1.98 },
-      { ingredient: "Olive Oil", quantity: 0.040, unit: "L", unitCost: 22.00, wastagePercent: 0, trueCost: 22.00, lineCost: 0.88 },
-      { ingredient: "Butter", quantity: 0.030, unit: "kg", unitCost: 25.00, wastagePercent: 0, trueCost: 25.00, lineCost: 0.75 },
-    ],
-    totalCost: 115.09,
-    costPerPortion: 57.55,
-    suggestedPrice: 191.82,
-    foodCostPercent: 30,
-    grossProfit: 134.27,
-    grossProfitPercent: 70,
-  },
-  {
-    recipeId: "lobster-risotto",
-    recipeName: "Butter Poached Lobster Risotto",
-    course: "Mains",
-    portions: 4,
-    ingredients: [
-      { ingredient: "Lobster", quantity: 0.500, unit: "kg", unitCost: 235.00, wastagePercent: 0, trueCost: 235.00, lineCost: 117.50 },
-      { ingredient: "Heavy Cream", quantity: 0.200, unit: "L", unitCost: 18.00, wastagePercent: 5, trueCost: 18.90, lineCost: 3.78 },
-      { ingredient: "Butter", quantity: 0.150, unit: "kg", unitCost: 25.00, wastagePercent: 0, trueCost: 25.00, lineCost: 3.75 },
-      { ingredient: "Parmesan", quantity: 0.080, unit: "kg", unitCost: 65.00, wastagePercent: 10, trueCost: 71.50, lineCost: 5.72 },
-      { ingredient: "Shallots", quantity: 0.060, unit: "kg", unitCost: 12.00, wastagePercent: 15, trueCost: 13.85, lineCost: 0.83 },
-    ],
-    totalCost: 131.58,
-    costPerPortion: 32.90,
-    suggestedPrice: 109.65,
-    foodCostPercent: 30,
-    grossProfit: 76.75,
-    grossProfitPercent: 70,
-  },
-  {
-    recipeId: "duck-confit",
-    recipeName: "Duck Confit with Orange Glaze",
-    course: "Mains",
-    portions: 2,
-    ingredients: [
-      { ingredient: "Duck Breast", quantity: 0.350, unit: "kg", unitCost: 85.00, wastagePercent: 20, trueCost: 102.00, lineCost: 35.70 },
-      { ingredient: "Butter", quantity: 0.080, unit: "kg", unitCost: 25.00, wastagePercent: 0, trueCost: 25.00, lineCost: 2.00 },
-      { ingredient: "Shallots", quantity: 0.040, unit: "kg", unitCost: 12.00, wastagePercent: 15, trueCost: 13.85, lineCost: 0.55 },
-      { ingredient: "Asparagus", quantity: 0.120, unit: "kg", unitCost: 45.00, wastagePercent: 25, trueCost: 56.25, lineCost: 6.75 },
-    ],
-    totalCost: 45.00,
-    costPerPortion: 22.50,
-    suggestedPrice: 75.00,
-    foodCostPercent: 30,
-    grossProfit: 52.50,
-    grossProfitPercent: 70,
-  },
-  {
-    recipeId: "tuna-tartare",
-    recipeName: "Yellowfin Tuna Tartare",
-    course: "Appetizers",
-    portions: 4,
-    ingredients: [
-      { ingredient: "Yellowfin Tuna", quantity: 0.250, unit: "kg", unitCost: 293.00, wastagePercent: 25, trueCost: 366.25, lineCost: 91.56 },
-      { ingredient: "Avocado", quantity: 0.150, unit: "kg", unitCost: 35.00, wastagePercent: 40, trueCost: 50.00, lineCost: 7.50 },
-      { ingredient: "Soy Sauce", quantity: 0.030, unit: "L", unitCost: 8.00, wastagePercent: 0, trueCost: 8.00, lineCost: 0.24 },
-      { ingredient: "Olive Oil", quantity: 0.020, unit: "L", unitCost: 22.00, wastagePercent: 0, trueCost: 22.00, lineCost: 0.44 },
-    ],
-    totalCost: 99.74,
-    costPerPortion: 24.94,
-    suggestedPrice: 83.12,
-    foodCostPercent: 30,
-    grossProfit: 58.18,
-    grossProfitPercent: 70,
-  },
-  {
-    recipeId: "lamb-rack",
-    recipeName: "Herb Crusted Lamb Rack",
-    course: "Mains",
-    portions: 2,
-    ingredients: [
-      { ingredient: "Lamb Rack", quantity: 0.450, unit: "kg", unitCost: 62.00, wastagePercent: 30, trueCost: 80.60, lineCost: 36.27 },
-      { ingredient: "Butter", quantity: 0.060, unit: "kg", unitCost: 25.00, wastagePercent: 0, trueCost: 25.00, lineCost: 1.50 },
-      { ingredient: "Asparagus", quantity: 0.100, unit: "kg", unitCost: 45.00, wastagePercent: 25, trueCost: 56.25, lineCost: 5.63 },
-      { ingredient: "Cherry Tomatoes", quantity: 0.080, unit: "kg", unitCost: 18.00, wastagePercent: 10, trueCost: 19.80, lineCost: 1.58 },
-    ],
-    totalCost: 44.98,
-    costPerPortion: 22.49,
-    suggestedPrice: 74.97,
-    foodCostPercent: 30,
-    grossProfit: 52.48,
-    grossProfitPercent: 70,
-  },
-];
-
-// Summary statistics
+// Get summary statistics
 export const getCostingSummary = () => {
-  const totalRecipes = costedRecipes.length;
-  const avgFoodCostPercent = costedRecipes.reduce((sum, r) => sum + r.foodCostPercent, 0) / totalRecipes;
-  const avgGrossProfitPercent = costedRecipes.reduce((sum, r) => sum + r.grossProfitPercent, 0) / totalRecipes;
-  const totalPotentialRevenue = costedRecipes.reduce((sum, r) => sum + (r.suggestedPrice * r.portions), 0);
-  
+  const totalIngredients = ingredientCostings.length;
+  const avgWastage = ingredientCostings.reduce((sum, ing) => sum + ing.wastagePercent, 0) / totalIngredients;
+  const highWastageItems = ingredientCostings.filter((ing) => ing.wastagePercent >= 40).length;
+  const totalCategories = new Set(ingredientCostings.map((ing) => ing.category)).size;
+
   return {
-    totalRecipes,
-    avgFoodCostPercent,
-    avgGrossProfitPercent,
-    totalPotentialRevenue,
+    totalIngredients,
+    avgWastage,
+    highWastageItems,
+    totalCategories,
   };
 };
