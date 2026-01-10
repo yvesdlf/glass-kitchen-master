@@ -10,6 +10,7 @@ import CreateRecipe from "./pages/CreateRecipe";
 import Ingredients from "./pages/Ingredients";
 import Costing from "./pages/Costing";
 import PriceLists from "./pages/PriceLists";
+import Suppliers from "./pages/Suppliers";
 import Upload from "./pages/Upload";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/ingredients" element={<Ingredients />} />
           <Route path="/costing" element={<Costing />} />
           <Route path="/price-lists" element={<PriceLists />} />
+          <Route path="/suppliers" element={<Suppliers />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/upload/recipes" element={<Upload />} />
           <Route path="/upload/prices" element={<Upload />} />
