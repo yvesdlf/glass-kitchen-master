@@ -23,7 +23,7 @@ import { ingredientCostings, getCostingSummary } from "@/data/costingData";
 export default function Costing() {
   const summary = getCostingSummary();
 
-  const formatCurrency = (value: number) => `AED ${value.toFixed(2)}`;
+  const formatCurrency = (value: number) => `€${value.toFixed(2)}`;
   const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 
   const getWastageColor = (percent: number) => {
