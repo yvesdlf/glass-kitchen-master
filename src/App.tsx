@@ -8,6 +8,7 @@ import Recipes from "./pages/Recipes";
 import RecipeDetail from "./pages/RecipeDetail";
 import CreateRecipe from "./pages/CreateRecipe";
 import Ingredients from "./pages/Ingredients";
+import IngredientDetail from "./pages/IngredientDetail";
 import Costing from "./pages/Costing";
 import PriceLists from "./pages/PriceLists";
 import Suppliers from "./pages/Suppliers";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/recipes/:id" element={<RecipeDetail />} />
           <Route path="/recipes/create" element={<CreateRecipe />} />
           <Route path="/ingredients" element={<Ingredients />} />
+          <Route path="/ingredients/:name" element={<IngredientDetail />} />
           <Route path="/costing" element={<Costing />} />
           <Route path="/price-lists" element={<PriceLists />} />
           <Route path="/suppliers" element={<Suppliers />} />

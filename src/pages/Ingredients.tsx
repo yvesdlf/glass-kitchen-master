@@ -136,8 +136,9 @@ export default function Ingredients() {
                       {groupedIngredients[category].map((ingredient, index) => (
                         <TableRow 
                           key={ingredient.name}
-                          className="animate-fade-in"
+                          className="animate-fade-in cursor-pointer hover:bg-muted/50"
                           style={{ animationDelay: `${index * 20}ms` }}
+                          onClick={() => window.location.href = `/ingredients/${encodeURIComponent(ingredient.name)}`}
                         >
                           <TableCell className="font-medium">{ingredient.name}</TableCell>
                           <TableCell className="text-right">
@@ -156,18 +157,22 @@ export default function Ingredients() {
                 <h2 className="text-xl font-bold mb-4 mt-6 text-primary">{category}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {groupedIngredients[category].map((ingredient, index) => (
-                    <Card 
+                    <Link 
+                      to={`/ingredients/${encodeURIComponent(ingredient.name)}`}
                       key={ingredient.name}
-                      className="hover:shadow-md transition-all animate-fade-in cursor-pointer"
-                      style={{ animationDelay: `${index * 20}ms` }}
                     >
-                      <CardContent className="p-4">
-                        <h4 className="font-medium text-sm mb-2 line-clamp-1">{ingredient.name}</h4>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">{ingredient.usedIn.length} uses</span>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      <Card 
+                        className="hover:shadow-md transition-all animate-fade-in cursor-pointer"
+                        style={{ animationDelay: `${index * 20}ms` }}
+                      >
+                        <CardContent className="p-4">
+                          <h4 className="font-medium text-sm mb-2 line-clamp-1">{ingredient.name}</h4>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">{ingredient.usedIn.length} uses</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               </div>
