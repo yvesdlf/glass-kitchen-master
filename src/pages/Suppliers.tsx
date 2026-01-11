@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -23,120 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Pencil, Trash2, Building2, Phone, Mail, User, MapPin, Calendar } from "lucide-react";
-
-interface Supplier {
-  id: string;
-  name: string;
-  shortName: string;
-  address: string;
-  postcode: string;
-  accountReference: string;
-  phone: string;
-  email: string;
-  taxRefNumber: string;
-  faxNumber: string;
-  salesRep: string;
-  salesRepEmail: string;
-  salesRepContact: string;
-  emailOrders: boolean;
-  minOrderValue: number;
-  deliveryDays: string[];
-}
-
-const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-const sampleSuppliers: Supplier[] = [
-  {
-    id: "1",
-    name: "Admiral Foodstuff Trading",
-    shortName: "admir",
-    address: "",
-    postcode: "",
-    accountReference: "",
-    phone: "",
-    email: "julia@admiralisland.com",
-    taxRefNumber: "",
-    faxNumber: "",
-    salesRep: "",
-    salesRepEmail: "",
-    salesRepContact: "",
-    emailOrders: true,
-    minOrderValue: 0,
-    deliveryDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  },
-  {
-    id: "2",
-    name: "AFRICAN & EASTERN",
-    shortName: "AE",
-    address: "STREET NO B-15, BEHIND NESTLE OFFICE, 3RD INTERCHANGE, SHEIKH ZAYED RD",
-    postcode: "32321",
-    accountReference: "",
-    phone: "+971553007957",
-    email: "service@ane.ae",
-    taxRefNumber: "",
-    faxNumber: "+971 4 4344869",
-    salesRep: "Giulia",
-    salesRepEmail: "Giuliam@ane.ae",
-    salesRepContact: "",
-    emailOrders: true,
-    minOrderValue: 0,
-    deliveryDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  },
-  {
-    id: "3",
-    name: "AL ALIA BEVERAGES",
-    shortName: "ALAL",
-    address: "PO BOX 52172",
-    postcode: "DUBAI",
-    accountReference: "",
-    phone: "+971565494309",
-    email: "800mycoke@coca-cola.co.ae",
-    taxRefNumber: "",
-    faxNumber: "+971 4 3380929",
-    salesRep: "Peri Peri",
-    salesRepEmail: "",
-    salesRepContact: "Parth",
-    emailOrders: true,
-    minOrderValue: 0,
-    deliveryDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  },
-  {
-    id: "4",
-    name: "Barakat Vegetables & Fruits",
-    shortName: "Barakat",
-    address: "",
-    postcode: "",
-    accountReference: "",
-    phone: "",
-    email: "order@barakatgroup.ae",
-    taxRefNumber: "",
-    faxNumber: "",
-    salesRep: "Yoonus",
-    salesRepEmail: "Yoonus.M@barakatgroup.ae",
-    salesRepContact: "",
-    emailOrders: true,
-    minOrderValue: 0,
-    deliveryDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  },
-];
-
-const emptySupplier: Omit<Supplier, "id"> = {
-  name: "",
-  shortName: "",
-  address: "",
-  postcode: "",
-  accountReference: "",
-  phone: "",
-  email: "",
-  taxRefNumber: "",
-  faxNumber: "",
-  salesRep: "",
-  salesRepEmail: "",
-  salesRepContact: "",
-  emailOrders: true,
-  minOrderValue: 0,
-  deliveryDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-};
+import { Supplier, sampleSuppliers, daysOfWeek, emptySupplier } from "@/data/suppliers";
 
 export default function Suppliers() {
   const [suppliers, setSuppliers] = useState<Supplier[]>(sampleSuppliers);
@@ -467,38 +354,39 @@ export default function Suppliers() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {supplier.salesRep ? (
-                          <div>
-                            <div className="text-sm font-medium">{supplier.salesRep}</div>
-                            {supplier.salesRepContact && (
-                              <div className="text-xs text-muted-foreground">{supplier.salesRepContact}</div>
-                            )}
-                          </div>
-                        ) : "-"}
+                        <div className="text-sm">{supplier.salesRep || "-"}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-wrap gap-0.5">
-                          {daysOfWeek.map(day => (
-                            <span
-                              key={day}
-                              className={`text-[10px] px-1 rounded ${
-                                supplier.deliveryDays.includes(day)
-                                  ? "bg-primary/20 text-primary font-medium"
-                                  : "bg-muted text-muted-foreground/50"
-                              }`}
-                            >
-                              {day.charAt(0)}
-                            </span>
+                        <div className="flex flex-wrap gap-1">
+                          {supplier.deliveryDays.slice(0, 4).map(day => (
+                            <Badge key={day} variant="outline" className="text-[10px] px-1">
+                              {day}
+                            </Badge>
                           ))}
+                          {supplier.deliveryDays.length > 4 && (
+                            <Badge variant="outline" className="text-[10px] px-1">
+                              +{supplier.deliveryDays.length - 4}
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(supplier)}>
-                            <Pencil className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleEdit(supplier)}
+                          >
+                            <Pencil className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(supplier.id)}>
-                            <Trash2 className="h-4 w-4" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => handleDelete(supplier.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
