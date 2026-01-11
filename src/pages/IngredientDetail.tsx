@@ -13,10 +13,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Package, Save, Upload, Trash2 } from "lucide-react";
+import { ArrowLeft, Package, Save, Upload, Trash2, Plus, Star } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { extractAllIngredients, INGREDIENT_CATEGORIES } from "@/data/recipes";
+import { sampleSuppliers, IngredientSupplier } from "@/data/suppliers";
 
 // Storage locations
 const storageLocations = [
@@ -52,15 +53,6 @@ const allergens = [
   { id: "mollusks", label: "Mollusks", icon: "🐚" },
 ];
 
-// Sample suppliers
-const suppliers = [
-  { id: "1", name: "Admiral Foodstuff Trading" },
-  { id: "2", name: "AFRICAN & EASTERN" },
-  { id: "3", name: "AL ALIA BEVERAGES" },
-  { id: "4", name: "Barakat Vegetables & Fruits" },
-  { id: "5", name: "Bidfood" },
-];
-
 // Units for order
 const orderUnits = ["KG", "G", "L", "ML", "EA", "Box", "Case", "Pack"];
 
@@ -79,13 +71,6 @@ export default function IngredientDetail() {
     bin: "",
     storageLocations: [] as string[],
     selectedAllergens: [] as string[],
-    supplier: "",
-    packSize: "",
-    orderUnit: "KG",
-    containsApprox: "",
-    netPrice: "",
-    taxPercent: "",
-    yieldPercent: "100",
     productCode: "",
     minimumOrderQty: "",
     parLevel: "",
@@ -95,6 +80,9 @@ export default function IngredientDetail() {
     defaultPackSize: false,
     notes: "",
   });
+
+  // Multi-supplier state
+  const [ingredientSuppliers, setIngredientSuppliers] = useState<IngredientSupplier[]>([]);
 
   const handleChange = (field: string, value: string | boolean | string[]) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -115,6 +103,52 @@ export default function IngredientDetail() {
       : [...current, allergenId];
     handleChange("selectedAllergens", updated);
   };
+
+  // Supplier management functions
+  const addSupplier = (supplierId: string) => {
+    if (ingredientSuppliers.some(s => s.supplierId === supplierId)) return;
+    
+    const newSupplier: IngredientSupplier = {
+      supplierId,
+      price: 0,
+      unit: "KG",
+      packSize: "",
+      isDefault: ingredientSuppliers.length === 0,
+    };
+    setIngredientSuppliers([...ingredientSuppliers, newSupplier]);
+  };
+
+  const removeSupplier = (supplierId: string) => {
+    const updated = ingredientSuppliers.filter(s => s.supplierId !== supplierId);
+    // If we removed the default, make the first one default
+    if (updated.length > 0 && !updated.some(s => s.isDefault)) {
+      updated[0].isDefault = true;
+    }
+    setIngredientSuppliers(updated);
+  };
+
+  const setDefaultSupplier = (supplierId: string) => {
+    setIngredientSuppliers(ingredientSuppliers.map(s => ({
+      ...s,
+      isDefault: s.supplierId === supplierId
+    })));
+  };
+
+  const updateSupplier = (supplierId: string, field: keyof IngredientSupplier, value: string | number | boolean) => {
+    setIngredientSuppliers(ingredientSuppliers.map(s =>
+      s.supplierId === supplierId ? { ...s, [field]: value } : s
+    ));
+  };
+
+  const getSupplierById = (supplierId: string) => {
+    return sampleSuppliers.find(s => s.id === supplierId);
+  };
+
+  const availableSuppliers = sampleSuppliers.filter(
+    s => !ingredientSuppliers.some(is => is.supplierId === s.id)
+  );
+
+  const defaultSupplier = ingredientSuppliers.find(s => s.isDefault);
 
   if (!ingredient) {
     return (
@@ -156,6 +190,11 @@ export default function IngredientDetail() {
                 <span className="text-sm text-muted-foreground">
                   Used in {ingredient.usedIn.length} recipes
                 </span>
+                {defaultSupplier && (
+                  <Badge variant="outline" className="text-xs">
+                    Default: {getSupplierById(defaultSupplier.supplierId)?.shortName || getSupplierById(defaultSupplier.supplierId)?.name}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -283,92 +322,122 @@ export default function IngredientDetail() {
               </CardContent>
             </Card>
 
-            {/* Supplier & Pricing */}
+            {/* Multi-Supplier Management */}
             <Card className="animate-slide-up delay-300">
-              <CardHeader>
-                <CardTitle className="text-lg font-display">Supplier & Pricing</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Select Supplier</Label>
-                  <Select value={form.supplier} onValueChange={v => handleChange("supplier", v)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select supplier" />
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-display">Suppliers & Pricing</CardTitle>
+                {availableSuppliers.length > 0 && (
+                  <Select onValueChange={addSupplier}>
+                    <SelectTrigger className="w-[200px]">
+                      <span className="flex items-center gap-2">
+                        <Plus className="w-4 h-4" />
+                        Add Supplier
+                      </span>
                     </SelectTrigger>
                     <SelectContent>
-                      {suppliers.map(s => (
-                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      {availableSuppliers.map(s => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.shortName ? `${s.shortName} - ${s.name}` : s.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="packSize">Pack-size</Label>
-                    <Input 
-                      id="packSize" 
-                      value={form.packSize}
-                      onChange={e => handleChange("packSize", e.target.value)}
-                      placeholder="e.g. 12x500g"
-                    />
+                )}
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {ingredientSuppliers.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Package className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">No suppliers assigned yet.</p>
+                    <p className="text-xs">Add a supplier using the dropdown above.</p>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="orderUnit">Optional Order Unit</Label>
-                    <Select value={form.orderUnit} onValueChange={v => handleChange("orderUnit", v)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {orderUnits.map(unit => (
-                          <SelectItem key={unit} value={unit}>{unit}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="containsApprox">Contains Approx</Label>
-                    <Input 
-                      id="containsApprox" 
-                      value={form.containsApprox}
-                      onChange={e => handleChange("containsApprox", e.target.value)}
-                      placeholder="e.g. 6kg"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="netPrice">Net Price (€)</Label>
-                    <Input 
-                      id="netPrice" 
-                      type="number"
-                      value={form.netPrice}
-                      onChange={e => handleChange("netPrice", e.target.value)}
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="taxPercent">Tax %</Label>
-                    <Input 
-                      id="taxPercent" 
-                      type="number"
-                      value={form.taxPercent}
-                      onChange={e => handleChange("taxPercent", e.target.value)}
-                      placeholder="0"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="yieldPercent">Yield %</Label>
-                    <Input 
-                      id="yieldPercent" 
-                      type="number"
-                      value={form.yieldPercent}
-                      onChange={e => handleChange("yieldPercent", e.target.value)}
-                      placeholder="100"
-                    />
-                  </div>
-                </div>
+                ) : (
+                  ingredientSuppliers.map(s => {
+                    const supplier = getSupplierById(s.supplierId);
+                    if (!supplier) return null;
+                    
+                    return (
+                      <div 
+                        key={s.supplierId} 
+                        className={`p-4 rounded-lg border ${s.isDefault ? 'border-primary bg-primary/5' : ''}`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setDefaultSupplier(s.supplierId)}
+                              className={`p-1 rounded ${s.isDefault ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'}`}
+                              title={s.isDefault ? "Default supplier" : "Set as default"}
+                            >
+                              <Star className={`h-5 w-5 ${s.isDefault ? 'fill-current' : ''}`} />
+                            </button>
+                            <div>
+                              <div className="font-medium">{supplier.name}</div>
+                              {supplier.shortName && (
+                                <Badge variant="secondary" className="text-xs mt-1">
+                                  {supplier.shortName}
+                                </Badge>
+                              )}
+                            </div>
+                            {s.isDefault && (
+                              <Badge variant="default" className="text-xs">Default</Badge>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive"
+                            onClick={() => removeSupplier(s.supplierId)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-4 gap-3">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Net Price (€)</Label>
+                            <Input
+                              type="number"
+                              value={s.price || ""}
+                              onChange={e => updateSupplier(s.supplierId, "price", Number(e.target.value))}
+                              placeholder="0.00"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Unit</Label>
+                            <Select 
+                              value={s.unit} 
+                              onValueChange={v => updateSupplier(s.supplierId, "unit", v)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {orderUnits.map(unit => (
+                                  <SelectItem key={unit} value={unit}>{unit}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-2 space-y-1">
+                            <Label className="text-xs">Pack Size</Label>
+                            <Input
+                              value={s.packSize}
+                              onChange={e => updateSupplier(s.supplierId, "packSize", e.target.value)}
+                              placeholder="e.g. 12x500g"
+                            />
+                          </div>
+                        </div>
+                        
+                        {supplier.email && (
+                          <div className="mt-3 text-xs text-muted-foreground">
+                            Contact: {supplier.email} {supplier.phone && `• ${supplier.phone}`}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </CardContent>
             </Card>
 
@@ -435,8 +504,9 @@ export default function IngredientDetail() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="auto">Auto</SelectItem>
-                        <SelectItem value="manual">Manual</SelectItem>
+                        <SelectItem value="unit">Per Unit</SelectItem>
+                        <SelectItem value="case">Per Case</SelectItem>
+                        <SelectItem value="weight">By Weight</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -456,7 +526,7 @@ export default function IngredientDetail() {
             </Card>
           </div>
 
-          {/* Right column - Image & Summary */}
+          {/* Right column - Image & Notes */}
           <div className="space-y-6">
             {/* Product Image */}
             <Card className="animate-slide-up">
@@ -464,51 +534,54 @@ export default function IngredientDetail() {
                 <CardTitle className="text-lg font-display">Product Image</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                  <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-sm text-primary font-medium mb-1">
-                    Select a file here
+                <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
+                  <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Click to upload or drag and drop
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Max file size: 3MB
+                  <p className="text-xs text-muted-foreground mt-1">
+                    PNG, JPG up to 5MB
                   </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Used In Recipes */}
-            <Card className="animate-slide-up delay-100">
-              <CardHeader>
-                <CardTitle className="text-lg font-display">
-                  Used In ({ingredient.usedIn.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {ingredient.usedIn.map(recipeName => (
-                    <div 
-                      key={recipeName}
-                      className="text-sm p-2 rounded bg-muted/50 hover:bg-muted transition-colors"
-                    >
-                      {recipeName}
-                    </div>
-                  ))}
                 </div>
               </CardContent>
             </Card>
 
             {/* Notes */}
-            <Card className="animate-slide-up delay-200">
+            <Card className="animate-slide-up delay-100">
               <CardHeader>
                 <CardTitle className="text-lg font-display">Notes</CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea 
-                  placeholder="Add any notes about this ingredient..."
                   value={form.notes}
                   onChange={e => handleChange("notes", e.target.value)}
-                  rows={4}
+                  placeholder="Add any notes about this ingredient..."
+                  rows={6}
                 />
+              </CardContent>
+            </Card>
+
+            {/* Used In Recipes */}
+            <Card className="animate-slide-up delay-200">
+              <CardHeader>
+                <CardTitle className="text-lg font-display">Used In</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {ingredient.usedIn.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Not used in any recipes yet.</p>
+                  ) : (
+                    ingredient.usedIn.map((recipeName, idx) => (
+                      <Link 
+                        key={idx}
+                        to={`/recipes/${encodeURIComponent(recipeName)}`}
+                        className="block p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      >
+                        <span className="text-sm font-medium">{recipeName}</span>
+                      </Link>
+                    ))
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
