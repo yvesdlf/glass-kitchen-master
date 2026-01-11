@@ -24,22 +24,26 @@ export function StatsCard({
   return (
     <div 
       className={cn(
-        "relative overflow-hidden rounded-xl bg-card border border-border p-5",
-        "transition-all duration-300 hover:shadow-lg hover:border-primary/20",
+        "relative overflow-hidden rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 p-6",
+        "transition-all duration-500 ease-out",
+        "hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 hover:-translate-y-1",
         "animate-slide-up opacity-0"
       )}
       style={{ animationDelay: `${delay}ms`, animationFillMode: "forwards" }}
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground font-medium">{title}</p>
-          <p className="text-3xl font-display font-bold text-foreground mt-1">{value}</p>
+      {/* Subtle gradient overlay on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500" />
+      
+      <div className="relative flex items-start justify-between">
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground font-medium tracking-wide">{title}</p>
+          <p className="text-4xl font-display font-bold text-foreground tracking-tight">{value}</p>
           {subtitle && (
-            <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+            <p className="text-xs text-muted-foreground/80 mt-2">{subtitle}</p>
           )}
           {trend && (
             <div className={cn(
-              "flex items-center mt-2 text-xs font-medium",
+              "flex items-center mt-3 text-xs font-medium",
               trend.positive ? "text-success" : "text-destructive"
             )}>
               <svg 
@@ -54,8 +58,8 @@ export function StatsCard({
             </div>
           )}
         </div>
-        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Icon className="w-6 h-6 text-primary" />
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/10 flex items-center justify-center border border-primary/20">
+          <Icon className="w-7 h-7 text-primary" />
         </div>
       </div>
     </div>
