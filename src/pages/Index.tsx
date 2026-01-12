@@ -78,40 +78,45 @@ const stats = [
 export default function Index() {
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        {/* Subtle pattern overlay */}
+      {/* Hero Section - Deep slate with prominent copper accents */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 min-h-[520px]">
+        {/* Animated copper gradient orbs */}
+        <div className="absolute top-[-150px] right-[-100px] w-[700px] h-[700px] rounded-full bg-gradient-radial from-amber-500/30 via-orange-600/15 to-transparent blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-[-100px] left-[-50px] w-[500px] h-[500px] rounded-full bg-gradient-radial from-amber-600/25 via-orange-500/10 to-transparent blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-gradient-radial from-slate-700/20 to-transparent blur-3xl" />
+        
+        {/* Subtle grid pattern */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px'
         }} />
         
-        {/* Copper accent glow */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-radial from-primary/20 via-primary/5 to-transparent blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-radial from-accent/15 via-accent/5 to-transparent blur-3xl" />
-        
-        <div className="container mx-auto px-4 py-20 md:py-28 relative">
-          <div className="max-w-3xl animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 text-primary mb-8 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-24 md:py-32 relative z-10">
+          <div className="max-w-3xl">
+            {/* Badge with copper glow */}
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 border border-amber-500/40 text-amber-400 mb-10 backdrop-blur-sm shadow-lg shadow-amber-500/10 animate-fade-in">
               <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium tracking-wide">Glass Kitchen Master V.1</span>
+              <span className="text-sm font-semibold tracking-wider uppercase">Glass Kitchen Master V.1</span>
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 leading-[1.1] tracking-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-8 leading-[1.05] tracking-tight animate-fade-in">
               Your Complete
-              <span className="block bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">Kitchen Management</span>
-              Solution
+              <span className="block mt-2 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent drop-shadow-lg">
+                Kitchen Management
+              </span>
+              <span className="block mt-2">Solution</span>
             </h1>
             
-            <p className="text-lg text-slate-300 mb-10 max-w-2xl leading-relaxed">
+            <p className="text-xl text-slate-300/90 mb-12 max-w-2xl leading-relaxed animate-fade-in" style={{ animationDelay: '100ms' }}>
               Combine recipe management, ingredient tracking, and advanced costing in one powerful platform. 
               Take control of your kitchen operations and maximize profitability.
             </p>
             
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-5 animate-fade-in" style={{ animationDelay: '200ms' }}>
               <Button 
                 size="lg" 
                 asChild
-                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg shadow-primary/25 border-0 px-6"
+                className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:via-orange-400 hover:to-amber-500 text-slate-950 font-semibold shadow-xl shadow-amber-500/30 border-0 px-8 py-6 text-base transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/40"
               >
                 <Link to="/recipes/create">
                   Create Your First Recipe
@@ -122,7 +127,7 @@ export default function Index() {
                 variant="outline" 
                 size="lg" 
                 asChild
-                className="border-slate-600 text-slate-200 hover:bg-slate-800 hover:text-white hover:border-slate-500 backdrop-blur-sm"
+                className="border-2 border-slate-500/50 text-slate-200 hover:bg-slate-800/50 hover:text-white hover:border-amber-500/50 backdrop-blur-sm px-8 py-6 text-base transition-all duration-300"
               >
                 <Link to="/upload">
                   Import Existing Data
@@ -132,13 +137,13 @@ export default function Index() {
           </div>
         </div>
         
-        {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+        {/* Bottom gradient fade with copper hint */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background via-background/80 to-transparent" />
       </section>
 
-      {/* Stats Section */}
-      <section className="container mx-auto px-4 -mt-10 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      {/* Stats Section - Floating cards with copper accents */}
+      <section className="container mx-auto px-4 -mt-16 relative z-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
           {stats.map((stat, index) => (
             <StatsCard 
               key={stat.title} 
@@ -150,13 +155,13 @@ export default function Index() {
       </section>
 
       {/* Features Grid */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="text-center mb-14 animate-fade-in">
-          <p className="text-primary font-medium text-sm tracking-widest uppercase mb-3">Powerful Tools</p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
+      <section className="container mx-auto px-4 py-24">
+        <div className="text-center mb-16 animate-fade-in">
+          <p className="text-amber-500 font-semibold text-sm tracking-[0.2em] uppercase mb-4">Powerful Tools</p>
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-5">
             Everything You Need
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
             From recipe creation to advanced cost analysis, manage every aspect of your culinary operations.
           </p>
         </div>
@@ -166,25 +171,29 @@ export default function Index() {
             <FeatureCard 
               key={feature.title} 
               {...feature} 
-              delay={200 + index * 100} 
+              delay={200 + index * 80} 
             />
           ))}
         </div>
       </section>
 
-      {/* Quick Actions */}
-      <section className="container mx-auto px-4 pb-20">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-800 via-slate-800 to-slate-900 border border-slate-700/50 p-10 md:p-14 animate-fade-in">
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-radial from-primary/20 to-transparent blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-radial from-accent/15 to-transparent blur-2xl" />
+      {/* CTA Section - Rich slate with copper glow */}
+      <section className="container mx-auto px-4 pb-24">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-850 to-slate-950 border border-slate-700/60 p-12 md:p-16 animate-fade-in shadow-2xl">
+          {/* Decorative copper glows */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-radial from-amber-500/25 via-orange-500/10 to-transparent blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-radial from-amber-600/20 via-orange-500/5 to-transparent blur-2xl" />
+          <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-gradient-radial from-amber-400/15 to-transparent blur-xl" />
           
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+          {/* Subtle border glow */}
+          <div className="absolute inset-0 rounded-3xl border border-amber-500/10" />
+          
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-10">
             <div>
-              <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-3">
+              <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
                 Ready to Get Started?
               </h3>
-              <p className="text-slate-400 text-lg">
+              <p className="text-slate-300 text-lg max-w-lg">
                 Upload your existing recipes and price lists to see the magic happen.
               </p>
             </div>
@@ -192,7 +201,7 @@ export default function Index() {
               <Button 
                 size="lg"
                 asChild
-                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg shadow-primary/25 border-0"
+                className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:via-orange-400 hover:to-amber-500 text-slate-950 font-semibold shadow-xl shadow-amber-500/30 border-0 transition-all duration-300 hover:scale-105"
               >
                 <Link to="/upload/recipes">
                   <Upload className="w-4 h-4 mr-2" />
@@ -203,7 +212,7 @@ export default function Index() {
                 variant="outline" 
                 size="lg"
                 asChild
-                className="border-slate-600 text-slate-200 hover:bg-slate-700 hover:text-white hover:border-slate-500"
+                className="border-2 border-slate-500/50 text-slate-200 hover:bg-slate-800/50 hover:text-white hover:border-amber-500/50 transition-all duration-300"
               >
                 <Link to="/upload/prices">
                   <FileSpreadsheet className="w-4 h-4 mr-2" />
